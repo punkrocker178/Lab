@@ -16,23 +16,34 @@ public class RecursiveDescentParser {
 	}
 
 	private void expression() {
+		term1();
+		while(symbol == Lexer.ONLYIF){
+			BiCond bicond = new BiCond();
+			bicond.setLeft(root);
+			term1();
+			bicond.setRight(root);
+			root = bicond;
+		}
+		while(symbol == Lexer.IMPLIES){
+			Cond cond = new Cond();
+			cond.setLeft(root);
+			term1();
+			cond.setRight(root);
+			root = cond;
+		}
+		
+		
+	}
+	private void term1(){
 		term();
-		/*while (symbol == Lexer.OR) {
+		while (symbol == Lexer.OR) {
 			Or or = new Or();
 			or.setLeft(root);
 			term();
 			or.setRight(root);
 			root = or;
-		}*/
-		while(symbol == Lexer.ONLYIF){
-			BiCond bicond = new BiCond();
-			bicond.setLeft(root);
-			term();
-			bicond.setRight(root);
-			root = bicond;
 		}
 	}
-
 	private void term() {
 		factor();
 		while (symbol == Lexer.AND) {

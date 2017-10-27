@@ -46,27 +46,31 @@ class Lexer {
 		input.ordinaryChar('>');
 		input.ordinaryChar('=');
 	}
-
-	public ArrayList<String> readWord(){
+	/*public String readWord(String st,String[] ar){
 		int i=0;
 		//String[] st = new String[10];
 		ArrayList<String> al = new ArrayList<String>();
 		try{
 		while(input.nextToken()!=StreamTokenizer.TT_EOF){
 			if(input.ttype==StreamTokenizer.TT_WORD){
+
+
 				al.add(input.sval);
 				//st[i] = input.sval;
 				//i++;
 			}
 			input.nextToken();
-
 		}
 	}catch(IOException e){
 		sym = EOF;
 	}
-		return al;
-	}
+		for(int j=0;i<al.size();i++){
+			st=st.replace(al.get(i),ar[i]);
+		}
 
+		return st;
+	}
+*/
 	public int nextSymbol() {
 		try {
 			switch (input.nextToken()) {
@@ -279,7 +283,18 @@ class RecursiveParseRule{
 }
 public class Assignment2{
 	public static void main(String[] args) {
-		String exp ="c|b&a&a";
+		String origin = args[0];
+		//String exp ="Hieu|ba&as&ad";
+		String[] var = origin.split("\\W");
+		String newSt ="";
+		for(int i=0;i<var.length;i++){
+			if(i==0){
+			newSt = origin.replace(var[i],args[1]);
+		}
+			newSt= newSt.replace(var[i],args[i+1]);
+			System.out.println(var[i]+":\t"+args[i+1]);
+		}
+		System.out.println(newSt);
 		/*StreamTokenizer read = new StreamTokenizer(new ByteArrayInputStream(exp.getBytes()));
 		String[] m = new String[10];
 		for(int i=0;i<10;i++){
@@ -293,9 +308,9 @@ public class Assignment2{
 			exp+=args[i];
 			System.out.println(exp);
 		}*/
-		Lexer lex = new Lexer(new ByteArrayInputStream(exp.getBytes()));
-		ArrayList<String> variable = new ArrayList<String>();
-		variable.addAll(lex.readWord());
+		Lexer lex = new Lexer(new ByteArrayInputStream(newSt.getBytes()));
+		//System.out.println(lex.readWord(exp,args));
+		//variable.addAll(lex.readWord(args));
 		/*for(int j=0;j<variable.size();j++){
 			for(int i=variable.size()-1;i>=1;i--){
 				System.out.println(variable.get(i));
@@ -305,13 +320,11 @@ public class Assignment2{
 			
 		}
 		*/
-	}
-		//System.out.println(Arrays.toString(lex.readWord()));
 
-		//RecursiveParseRule parser = new RecursiveParseRule(lex);
-		//BooleanExp e = parser.buildExpression();
-		//System.out.println("Expression: "+e);
-		//System.out.println("Anser: "+e.interpret());
+		RecursiveParseRule parser = new RecursiveParseRule(lex);
+		BooleanExp e = parser.buildExpression();
+		System.out.println("Expression: "+e);
+		System.out.println("Anser: "+e.interpret());
 		
 	}
 }

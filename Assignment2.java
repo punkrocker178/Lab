@@ -1,6 +1,7 @@
 import java.io.*;
 import java.io.ByteArrayInputStream;
 import java.util.*;
+import java.lang.*;
 
 class Lexer {
 	private StreamTokenizer input;
@@ -46,31 +47,7 @@ class Lexer {
 		input.ordinaryChar('>');
 		input.ordinaryChar('=');
 	}
-	/*public String readWord(String st,String[] ar){
-		int i=0;
-		//String[] st = new String[10];
-		ArrayList<String> al = new ArrayList<String>();
-		try{
-		while(input.nextToken()!=StreamTokenizer.TT_EOF){
-			if(input.ttype==StreamTokenizer.TT_WORD){
 
-
-				al.add(input.sval);
-				//st[i] = input.sval;
-				//i++;
-			}
-			input.nextToken();
-		}
-	}catch(IOException e){
-		sym = EOF;
-	}
-		for(int j=0;i<al.size();i++){
-			st=st.replace(al.get(i),ar[i]);
-		}
-
-		return st;
-	}
-*/
 	public int nextSymbol() {
 		try {
 			switch (input.nextToken()) {
@@ -224,7 +201,23 @@ class RecursiveParseRule{
 	}
 	private void exp(){
 		term1();
-		while(sym == Lexer.ONLYIF){
+		while(sym!=Lexer.EOF){
+			if(sym==Lexer.ONLYIF){
+				BiCondition bicond = new BiCondition();
+				bicond.setLeft(root);
+				term1();
+				bicond.setRight(root);
+				root = bicond;
+			}else if(sym==Lexer.IMPLIES){
+				Condition cond = new Condition();
+				cond.setLeft(root);
+				term1();
+				cond.setRight(root);
+				root = cond;
+			}
+		}
+		
+		/*while(sym == Lexer.ONLYIF){
 			BiCondition bicond = new BiCondition();
 			bicond.setLeft(root);
 			term1();
@@ -238,6 +231,7 @@ class RecursiveParseRule{
 			cond.setRight(root);
 			root = cond;
 		}
+		*/
 	}
 	private void term1(){
 		term();
@@ -283,44 +277,75 @@ class RecursiveParseRule{
 }
 public class Assignment2{
 	public static void main(String[] args) {
-		String origin = args[0];
-		//String exp ="Hieu|ba&as&ad";
-		String[] var = origin.split("\\W");
-		String newSt ="";
-		for(int i=0;i<var.length;i++){
-			if(i==0){
-			newSt = origin.replace(var[i],args[1]);
-		}
-			newSt= newSt.replace(var[i],args[i+1]);
-			System.out.println(var[i]+":\t"+args[i+1]);
-		}
-		System.out.println(newSt);
-		/*StreamTokenizer read = new StreamTokenizer(new ByteArrayInputStream(exp.getBytes()));
-		String[] m = new String[10];
-		for(int i=0;i<10;i++){
-			if(read.ttype == StreamTokenizer.TT_WORD){
-			m[i] = read.sval;
-			System.out.println(m[i]);
-		}
-		}*/
+		String exp ="Hieu|b&(ac=as)!as";
 
-		/*for(int i=0;i<args.length;i++){
-			exp+=args[i];
-			System.out.println(exp);
-		}*/
-		Lexer lex = new Lexer(new ByteArrayInputStream(newSt.getBytes()));
-		//System.out.println(lex.readWord(exp,args));
-		//variable.addAll(lex.readWord(args));
-		/*for(int j=0;j<variable.size();j++){
-			for(int i=variable.size()-1;i>=1;i--){
-				System.out.println(variable.get(i));
-				if(variable.get(j).equals(variable.get(i))){
-					variable.remove(i);
+		String[] var = args[0].split("[^a-zA-z]");
+		String[] ops = args[0].split("\\s*[a-zA-Z()]+\\s*");
+		LinkedHashMap<String,String> map = new LinkedHashMap<String,String>();
+		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> bool = new ArrayList<String>();
+		ArrayList<String> op = new ArrayList<String>();
+		String newStr ="";
+		
+		for(int j=0;j<args.length-1;j++){					// ADD ARGUMENT VO BOOL
+			bool.add(args[j+1]);
+			System.out.println(bool.get(j));
+		}
+		for(int k=0;k<ops.length;k++){
+			if(!ops[k].equals("")){
+				op.add(ops[k]);
+				System.out.println(ops[k]);
+			}
+		}
+		for(int i=0;i<var.length;i++){						//HASHMAP TEN BIEN VA BOOL
+				if(i==0){
+					list.add(var[0]);
+					map.put(list.get(i),bool.get(i));
+				}else if(!var[i].equals("")){
+					System.out.println(i);
+					list.add(var[i]);
+					map.put(list.get((list.size()-1)),bool.get(i));
+					
 				}
-			
+				System.out.println(map.entrySet()+"\t");
+
+		}
+		int size = list.size()+op.size();
+   		for(int l=0;l<list.size();l++){
+   			System.out.println("Running: "+l);
+   			if(l==0){
+   				
+   				newStr = map.get(list.get(l))+op.get(l);
+   				
+   			}else if(l<list.size()-1){
+   				newStr=newStr+map.get(list.get(l))+op.get(l);
+   			}else{
+   				newStr=newStr+map.get(list.get(l));
+   			}
+   			System.out.println(newStr);
+   		}
+		/*try{
+			for(int i=0;i<args.length;i++){
+				abool.add(Boolean.parseBoolean(args[i]));
+			}
+		}catch(IndexOutOfBoundsException e){
+			System.err.println("NO INPUT!");
 		}
 		*/
+		//variable.addAll(lex.readWord());
+		//origin.addAll(variable);
 
+		/*for(int j=0;j<variable.size();j++){								//Loai bo variable trung`
+			for(int i=j+1;i<variable.size();i++){
+				if(variable.get(j).equals(variable.get(i))){
+					variable.remove(i);
+				}	
+			}
+		}	
+		*/
+		
+
+		Lexer lex = new Lexer(new ByteArrayInputStream(newStr.getBytes()));
 		RecursiveParseRule parser = new RecursiveParseRule(lex);
 		BooleanExp e = parser.buildExpression();
 		System.out.println("Expression: "+e);

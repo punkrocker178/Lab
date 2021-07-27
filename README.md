@@ -1,2 +1,1 @@
-# Testing
-test
+# Boolean expression validator
